@@ -1,2 +1,2 @@
 # VQA
-General implementation of a variational quantum algorithm
+General implementation of variational quantum algorithms
