@@ -1,5 +1,6 @@
 from typing import Callable, Sequence
 
+import numpy as np
 from numpy import ndarray
 from qiskit import QuantumCircuit
 from scipy import optimize
@@ -33,5 +34,5 @@ class VariationalCircuit:
     def optimize_parameters(self, cost_function: Callable[[str], float], initial_angles: ndarray) -> OptimizeResult:
         """ Optimizes variational parameters of the circuit to minimize expectation of cost function and returns optimized parameter values. """
         min_func = lambda angles: self.get_cost_expectation(cost_function, angles)
-        result = optimize.minimize(min_func, initial_angles, method="SLSQP")
+        result = optimize.minimize(min_func, initial_angles, method="SLSQP", options={"maxiter": np.iinfo(np.int32).max})
         return result

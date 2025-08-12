@@ -35,15 +35,24 @@ class CostFunction:
     known_values: dict[str, OptimizeResult] = field(default_factory=dict)
 
     def optimize_power(self, bitstring: str) -> OptimizeResult:
+        def generation_cost(powers: list[float]) -> float:
+            return sum(gen.generation_cost(power) for gen, power in zip(enabled_generators, powers))
+
+        def generation_cost_total(powers: list[float]) -> float:
+            cost = generation_cost(powers)
+            constraint_dist = constraint["fun"](powers)
+            if constraint_dist < 0:
+                penalty = 1e2 * constraint_dist ** 2
+                cost += penalty
+            return cost
+
         enabled_generators = self.problem.generators[[int(val) == 1 for val in bitstring]]
-        generation_cost = lambda powers: sum(gen.generation_cost(power) for gen, power in zip(enabled_generators, powers))
         initial_point = [random.uniform(*gen.power_range) for gen in enabled_generators]
         bounds = [gen.power_range for gen in enabled_generators] if enabled_generators.size > 0 else None
         constraint = {"type": "ineq", "fun": lambda powers: sum(powers) - self.problem.load}
-        result = optimize.minimize(generation_cost, initial_point, method="SLSQP", bounds=bounds, constraints=constraint)
+        result = optimize.minimize(generation_cost_total, initial_point, method="SLSQP", bounds=bounds, constraints=constraint)
+        result.generation_cost = generation_cost(result.x)
         result.constraint = constraint["fun"](result.x)
-        if result.constraint < 0:
-            result.fun += 1e3 * constraint["fun"](result.x) ** 2
         return result
 
     def evaluate(self, bitstring: str) -> float:
