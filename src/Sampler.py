@@ -30,7 +30,7 @@ class MySamplerV2(Sampler):
     sampler: BaseSamplerV2
 
     def get_sample_probabilities(self, circuit: QuantumCircuit, param_vals: Sequence[float]) -> dict[str, float]:
-        measurement_circuit = circuit.measure_all(inplace=False)
-        counts = self.sampler.run([(measurement_circuit, param_vals)]).result()[0].data.meas.get_counts()
+        measured_circuit = circuit.measure_all(inplace=False)
+        counts = self.sampler.run([(measured_circuit, param_vals)]).result()[0].data.meas.get_counts()
         probabilities = {key: value / self.sampler.default_shots for key, value in counts.items()}
         return probabilities

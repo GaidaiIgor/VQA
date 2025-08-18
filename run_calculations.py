@@ -44,8 +44,8 @@ def main():
 
     entangler = AllToAllEntangler(num_gen)
     mixer = ZXMixer(num_gen)
-    sampler = ExactSampler()
-    # sampler = MySamplerV2(StatevectorSampler())
+    # sampler = ExactSampler()
+    sampler = MySamplerV2(StatevectorSampler(default_shots=1))
     num_layers = 1
 
     vqa = VariationalCircuit(num_layers, [entangler, mixer], sampler)
