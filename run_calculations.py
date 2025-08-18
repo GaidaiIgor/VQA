@@ -19,7 +19,7 @@ def get_problem() -> GeneratorCommitmentProblem:
     #                        Generator((100, 400), (0.0025, 8, 300)),
     #                        Generator((50, 200), (0.005, 6, 100))])
     # load = 170
-
+    #
     # generators = np.array([Generator((150, 455), (0.00048, 16.19, 1000)),
     #                        Generator((150, 455), (0.00031, 17.26, 970)),
     #                        Generator((20, 130), (0.002, 16.6, 700)),
