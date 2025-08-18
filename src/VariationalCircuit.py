@@ -13,9 +13,12 @@ from src.Sampler import Sampler
 class VariationalCircuit:
     def build(self) -> QuantumCircuit:
         qc = QuantumCircuit(self.layer_types[0].num_qubits)
+        qc.h(range(qc.num_qubits))
+        # qc.barrier()
         for i in range(self.num_layers):
             for layer_type in self.layer_types:
                 qc.compose(layer_type.get_circuit(str(i)), inplace=True)
+                # qc.barrier()
         return qc
 
     def __init__(self, num_layers: int, layer_types: list[CircuitLayer], sampler: Sampler):

@@ -54,10 +54,12 @@ class ButterflyEntangler(CircuitLayer):
         return qc
 
 
-class XMixer(CircuitLayer):
+class ZXMixer(CircuitLayer):
     def get_circuit(self, name_suffix: str) -> QuantumCircuit:
         qc = QuantumCircuit(self.num_qubits)
-        params = ParameterVector(f"B_{name_suffix}", self.num_qubits)
+        params = ParameterVector(f"B_{name_suffix}", 2 * self.num_qubits)
         for i in range(self.num_qubits):
-            qc.rx(params[i], i)
+            qc.rz(params[i], i)
+        for i in range(self.num_qubits):
+            qc.rx(params[self.num_qubits + i], i)
         return qc

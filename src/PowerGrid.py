@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 
+from networkx import Graph
 from numpy import ndarray
 from numpy import random
 from scipy import optimize
@@ -21,17 +22,26 @@ class Generator:
 
 
 @dataclass
-class PowerGridUnitCommitmentProblem:
-    """ Describes a unit commitment problem in power grid.
+class GeneratorCommitmentProblem:
+    """ Describes a unit commitment problem in a power grid.
     I.e. given a set of generators, which ones should be enabled and at what power in order to meet target load using the smallest operation cost. """
     generators: ndarray[Generator]
     load: float
 
 
 @dataclass
+class PowerFlowProblem:
+    """ Generalized version of GeneratorCommitmentProblem, where locations of generators and loads are taken into account.
+    Specifically, the problem is described by a graph, where nodes represent neighborhoods that can include generators and loads.
+    Generated power is consumed by local loads, but any excess power can be transferred to adjacent nodes to supplement their generators or be passed further in the network.
+    Edges represent power lines between neighborhoods and have finite capacities, so routing the generated power to the loads now becomes a problem too. """
+    grid: Graph
+
+
+@dataclass
 class CostFunction:
     """ Describes power grid cost function. Evaluates and stores known results. """
-    problem: PowerGridUnitCommitmentProblem
+    problem: GeneratorCommitmentProblem
     known_values: dict[str, OptimizeResult] = field(default_factory=dict)
 
     def optimize_power(self, bitstring: str) -> OptimizeResult:
@@ -42,7 +52,7 @@ class CostFunction:
             cost = generation_cost(powers)
             constraint_dist = constraint["fun"](powers)
             if constraint_dist < 0:
-                penalty = 1e2 * constraint_dist ** 2
+                penalty = 1e1 * constraint_dist ** 2
                 cost += penalty
             return cost
 
